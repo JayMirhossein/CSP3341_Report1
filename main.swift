@@ -1,61 +1,43 @@
-
 import Foundation
-var i: Int
-var j:Int
 
-
-// Function to count odd numbers concurrently from 1 to 1000
-func countOdd() async {
-    for i in stride(from: 1, to: 5000, by: 2) {
-      // print("\u{001B}[0;31m Odd: \(i)", terminator: " ")
-
+// Function to print numbers from a start to an end
+func printNumbersA(from start: Int, to end: Int) {
+    for numberA in start...end {
+        print("\u{001B}[0;33m channel A: \(numberA)")
     }
 }
 
-// Function to count even numbers concurrently from 1 to 1000
-func countEven() async {
-    for i in stride(from: 1, to: 5000, by: 2) {
-     print("\"\u{001B}[0;33m Even: \(i)", terminator: " ")
+func printNumbersB(from start: Int, to end: Int) {
+    for numberB in start...end {
+        print("\u{001B}[0;31m channel B: \(numberB)")
     }
 }
 
-// Calling the functions concurrently
-Task {
-    //async let oddTask = countOdd()
-   // async let evenTask = countEven()
-    
-    async let oddTask: () = countOdd()
-    async let evenTask: () = countEven()
-    
-    // Start time
-    var startTime = Date()
+// Create two dispatch queues for concurrent execution
+let queue1 = DispatchQueue(label: "com.example.queue1", attributes: .concurrent)
+let queue2 = DispatchQueue(label: "com.example.queue2", attributes: .concurrent)
 
-    // Wait for both tasks to finish
-    await oddTask
-    await evenTask
-    
-    // End time
-    var endTime = Date()
 
-    
-    // Calculate the time interval
-    let executionTime1 = endTime.timeIntervalSince(startTime)
+// Start time
+var startTime = Date()
 
-  
-    startTime = Date()
-    
-    for i in stride(from: 1, to: 5000, by: 2) {
-    print("\u{001B}[0;31m Odd: \(i)",terminator: " ")
-    }
-    
-    for i in stride(from: 2, to: 5000, by: 2) {
-     print("\"\u{001B}[0;33m Even: \(i)",terminator: " ")
-    }
-    
-    endTime = Date()
-    let executionTime2 = endTime.timeIntervalSince(startTime)
-    print("Execution time 1: \(executionTime1) seconds")
-    print("Execution time 2: \(executionTime2) seconds")
-
+// Dispatch tasks to the queues concurrently
+queue1.async {
+    printNumbersA(from: 1, to: 500)
 }
 
+queue2.async {
+    printNumbersB(from: 501, to: 1000)
+}
+
+// Wait for all tasks to finish before exiting
+DispatchQueue.global().async {
+    // Sleep for a while to allow other queues to finish
+    Thread.sleep(forTimeInterval: 1)
+}
+
+// End time
+var endTime = Date()
+
+let executionTime1 = endTime.timeIntervalSince(startTime)
+print("Execution time 1: \(executionTime1) seconds")
