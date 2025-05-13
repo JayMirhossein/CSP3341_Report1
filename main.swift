@@ -43,7 +43,7 @@ func taskD() {
 }
 
 
-DispatchQueue.global().sync {
+DispatchQueue.global().async {
     taskA()
 }
 
